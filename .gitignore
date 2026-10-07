@@ -26,3 +26,6 @@ public/results/.*.json
 
 # Generated fixture projection output (npm run fixtures:materialize): derived, never committed or hand-edited.
 /fixtures/materialized/
+
+# Rust build artifacts.
+/target/

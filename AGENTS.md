@@ -12,9 +12,9 @@ one deterministic replacement plan and irreversible or vault-backed reversible
 output. Primary implementation language is Rust. Write repository documentation,
 issue titles, commit messages, and public API comments in English.
 
-This is currently a documentation-only foundation: no Cargo workspace, runtime
-implementation, CI, benchmark harness, or test suite exists. The README API and
-architecture feature names are proposals, not frozen or implemented contracts.
+A dependency-free Rust crate, private pipeline stages, scaffold tests, and CI
+exist. Consult README for implemented behavior and qualification limits. The
+conceptual API and integration feature names remain proposals until implemented.
 Inspect the current tree before choosing commands or claiming support.
 
 ## Ownership boundaries
@@ -152,9 +152,8 @@ security claims, synthetic examples, local references, and unrelated changes.
 Check skill frontmatter and every Claude symlink's canonical destination.
 Run `rtk git diff --check` and check new files for whitespace too.
 
-Documentation-only work does not have runnable Rust checks in the current tree;
-report them as not assessable rather than claiming success. Once Cargo/CI exists,
-run the actual relevant checks, including the conventions' standard commands:
+Run the actual relevant Cargo/CI checks, including the conventions' standard
+commands:
 
 ```bash
 cargo fmt --all --check

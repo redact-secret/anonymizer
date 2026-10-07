@@ -9,8 +9,8 @@ Shared repository instructions are maintained in one place:
 @AGENTS.md
 
 Read the authoritative documents named there before changing contracts or code.
-The current repository has design documents but no Cargo implementation yet;
-open issues describe planned work, not current guarantees.
+The repository has a dependency-free Rust scaffold and CI. Consult README for
+implemented behavior; open issues describe requirements, not current guarantees.
 
 Local skills are canonical in `.agents/skills/` and exposed through relative
 symlinks in `.claude/skills/`. Edit canonical files, not copies through the links.

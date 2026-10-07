@@ -1,6 +1,6 @@
 ---
 name: verify-span-safety
-description: Design, add, or review anonymizer span and Unicode safety tests, property/fuzz coverage, and resource bounds; use for issue #8 or transformation safety changes.
+description: "Design, add, or review anonymizer span and Unicode safety tests, property/fuzz coverage, and resource bounds; use for issue #8 or transformation safety changes."
 ---
 
 # Verify span safety

@@ -1,6 +1,6 @@
 ---
 name: integrate-vault-capture
-description: Design or implement anonymizer reversible token placement through a minimal vault-facing capture contract, including abort and rollback conformance; use for issue #7.
+description: "Design or implement anonymizer reversible token placement through a minimal vault-facing capture contract, including abort and rollback conformance; use for issue #7."
 ---
 
 # Integrate vault capture

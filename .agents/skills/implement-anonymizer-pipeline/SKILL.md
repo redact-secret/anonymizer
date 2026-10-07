@@ -1,6 +1,6 @@
 ---
 name: implement-anonymizer-pipeline
-description: Implement a scoped Rust scaffold or normalization, arbitration, planning, and irreversible construction stage in anonymizer; use for issues #2–#6.
+description: "Implement a scoped Rust scaffold or normalization, arbitration, planning, and irreversible construction stage in anonymizer; use for issues #2\u2013#6."
 ---
 
 # Implement anonymizer pipeline

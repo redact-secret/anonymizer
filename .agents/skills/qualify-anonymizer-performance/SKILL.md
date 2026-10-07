@@ -1,6 +1,6 @@
 ---
 name: qualify-anonymizer-performance
-description: Measure anonymizer planner/constructor cost, allocations, feature binary size, and v0.1 release evidence; use for issue #9 or performance-sensitive architecture changes.
+description: "Measure anonymizer planner/constructor cost, allocations, feature binary size, and v0.1 release evidence; use for issue #9 or performance-sensitive architecture changes."
 ---
 
 # Qualify anonymizer performance
