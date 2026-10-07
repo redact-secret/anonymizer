@@ -75,6 +75,9 @@ normalization, arbitration, planning, and construction modules establish the
 pipeline boundaries. `normalize_findings(input, findings, limits)` now validates
 and canonicalizes compact caller-supplied metadata (see ARCHITECTURE.md); the
 identity `anonymize` scaffold does not yet consume it or apply replacements.
+`arbitrate_findings` returns immutable ordered overlap unions and safe dominant
+metadata, retaining all redaction coverage and rejecting upstream Block actions.
+Its explicit policy and decision table are documented in ARCHITECTURE.md.
 
 The default dependency graph contains only this crate and the Rust standard
 library. There are no runtime or development dependencies, sibling imports,

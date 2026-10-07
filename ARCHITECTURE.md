@@ -174,20 +174,68 @@ reference anonymizer or exposes mapping/restore authority.
 
 ## 6. Overlap arbitration
 
-Overlap handling is a product contract and must be explicit.
+### Accepted whole-input policy: conservative union
 
-Candidate policy axes may include:
+`arbitrate_findings` normalizes once and performs one start-ordered sweep. Any
+valid `Block` finding fails the whole operation, even when it does not overlap a
+redaction. Span/limit validation takes precedence over policy failure. `Warn`
+and `Allow` create no replacement and never suppress a `Redact`. Report-only
+findings are not retained in accepted replacement metadata; callers already own
+these findings and may report their safe metadata separately.
 
-1. explicit security priority,
-2. source precedence,
-3. specificity,
-4. confidence,
-5. narrower span,
-6. deterministic registration order.
+Each connected component of strictly overlapping `Redact` ranges becomes its
+union. Adjacent ranges remain separate. This preserves all submitted redaction
+coverage, including every byte of core credentials; a narrow high-confidence
+NER span cannot expose the remainder. Connected interval unions contain no gap,
+but mixed recognizers can extend replacement beyond core spans. No source wins
+exclusive coverage. Dominant metadata chooses a label for the entire union,
+not permission to drop other finding bytes. This can conservatively redact more
+text and lose per-detector replacement granularity compared with standalone core.
+It does not change core policy actions or claim exact core placeholder parity.
 
-The final rule must be deterministic and testable.
+| Case | Accepted result | Safe reasoning |
+| --- | --- | --- |
+| Exact full-metadata repetition | Deduplicate before sweep | One contributor |
+| Same range, different source/kind/confidence | One range | `ExactAgreement`, dominant label, contributor count |
+| Contained redaction | Union preserves wider range | `OverlapUnion` |
+| Partial or transitive overlap | Entire connected union | `OverlapUnion` |
+| Credential versus PII / core versus NER | Union all redaction coverage | Dominant label per total key below |
+| Equal priority/source/confidence | Same union regardless of submission order | Canonical metadata tie |
+| Adjacent redactions | Separate ordered ranges | Separate labels and numbering later |
+| Warn/Allow overlaps Redact | Redact unchanged | Report-only actions do not arbitrate coverage |
+| Block anywhere | Fixed `Blocked` error, no accepted result | No source text or partial output |
 
-The project must not silently alter the meaning of a `redact-secret` finding without an explicit policy decision.
+Label selection uses this ascending total key: source class (`Core`, `Caller`,
+`Fastner`), credential-category preference within that class, caller registration
+number, then the full normalized `SourceFinding` lexicographic order. Registration
+IDs come from host configuration, never arrival order. Core labels take priority
+for recognizable canonical semantics; explicit host recognizers precede
+statistical labels. Credential preference labels an already-covered union; it
+is not a detection-quality guarantee. Remaining kind and span ties follow their
+bounded declared ordering. Confidence is only a final canonical metadata tie,
+never a confidence threshold or cross-model evidence ranking. Different
+confidence variants and model calibrations are not meaningfully interchangeable.
+
+Specificity is absent from the submitted contract and cannot be guessed. Narrower
+versus wider exclusive winners were rejected because they can expose portions of
+another finding. Global confidence-based precedence was rejected because it would
+invent cross-model comparability. Configurable security priority is deferred until
+a concrete consumer contract exists; v0.1 uses this single explicit policy.
+
+`AcceptedSpan` has private fields and read-only getters: union `span`, original
+`dominant` finding, unique redaction `contributors` count, and `ArbitrationReason`.
+It carries no plaintext or arbitrary labels. Together with caller-owned normalized
+findings, the union bounds identify every contributing redaction by intersection;
+individual suppressed-label rows need not be duplicated in hot-path storage.
+Counts and metadata are permutation-independent. Public construction only returns
+sorted, non-overlapping spans validated against input. Metadata is suitable for
+later safe manifests, not an authorization record or secret-free output proof.
+
+Cost: one O(n log n) normalization sort, one O(n) sweep, and O(n) metadata storage;
+no rescans, pairwise overlap graph, repeated interval insertion, or substring
+allocation. Limits bound submitted counts before sorting. Tests cover transitive
+chains, Unicode boundaries, duplicates, exact agreement, containment, partial
+intersection, adjacency, source/kind ties, report-only actions, and global block.
 
 ## 7. Irreversible mode
 
