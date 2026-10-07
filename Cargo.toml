@@ -7,6 +7,7 @@ description = "Deterministic forward transformation for the Redact Secret ecosys
 
 [features]
 default = []
+reversible = []
 
 [profile.release]
 lto = true

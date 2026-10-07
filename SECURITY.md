@@ -149,3 +149,13 @@ Security documentation must distinguish:
 - planned behavior.
 
 Do not describe a planned control as a current guarantee.
+
+## Reversible qualification limits
+
+The optional local TokenSink contract requires trusted host authority wiring and
+atomic commit/compensating abort. Dummy conformance does not qualify any production
+vault. Cleanup failure may leave externally retained mappings; hosts must reconcile
+without releasing partial output. Panics, cancellation, process loss, persistence,
+zeroization, and authority remain outside this engine. The minimal contiguous token
+marker preflight does not match vault's Unicode-Cf spoof detection; production
+adapters must strengthen this before claiming vault output-binding parity.

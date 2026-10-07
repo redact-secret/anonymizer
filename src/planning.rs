@@ -3,13 +3,16 @@
 pub enum ReplacementMode {
     /// Fixed category placeholder without reversible mappings.
     Irreversible,
+    /// Opaque token placement through an externally owned capture transaction.
+    #[cfg(feature = "reversible")]
+    Reversible,
 }
 
 /// Text-free replacement identity, numbered globally in source-span order.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ReplacementIdentity {
-    kind: crate::FindingKind,
-    number: usize,
+    pub(crate) kind: crate::FindingKind,
+    pub(crate) number: usize,
 }
 impl ReplacementIdentity {
     /// Fixed category used for the placeholder.
@@ -31,8 +34,9 @@ impl ReplacementIdentity {
 /// Safe immutable replacement metadata; never contains original text or tokens.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct PlannedReplacement {
-    accepted: crate::AcceptedSpan,
-    identity: ReplacementIdentity,
+    pub(crate) accepted: crate::AcceptedSpan,
+    pub(crate) identity: ReplacementIdentity,
+    pub(crate) mode: ReplacementMode,
 }
 impl PlannedReplacement {
     /// Validated accepted range, contributor count, and arbitration reasoning.
@@ -45,16 +49,16 @@ impl PlannedReplacement {
     }
     /// Replacement mode without vault authority metadata.
     pub fn mode(&self) -> ReplacementMode {
-        ReplacementMode::Irreversible
+        self.mode
     }
 }
 
 /// Standalone safe transformation metadata; no input, matched values, or mappings.
 #[derive(Debug, Eq, PartialEq)]
 pub struct TransformationManifest {
-    replacements: Vec<PlannedReplacement>,
-    input_bytes: usize,
-    output_bytes: usize,
+    pub(crate) replacements: Vec<PlannedReplacement>,
+    pub(crate) input_bytes: usize,
+    pub(crate) output_bytes: usize,
 }
 impl TransformationManifest {
     /// Ordered, non-overlapping replacement metadata.
@@ -166,7 +170,11 @@ pub fn plan_irreversible<'a>(
         added = added
             .checked_add(identity.len())
             .ok_or(AnonymizeError::CapacityOverflow)?;
-        replacements.push(PlannedReplacement { accepted, identity });
+        replacements.push(PlannedReplacement {
+            accepted,
+            identity,
+            mode: ReplacementMode::Irreversible,
+        });
     }
     let output_bytes = input
         .len()
