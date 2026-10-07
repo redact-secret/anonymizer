@@ -12,9 +12,9 @@ one deterministic replacement plan and irreversible or vault-backed reversible
 output. Primary implementation language is Rust. Write repository documentation,
 issue titles, commit messages, and public API comments in English.
 
-A dependency-free Rust crate, private pipeline stages, scaffold tests, and CI
-exist. Consult README for implemented behavior and qualification limits. The
-conceptual API and integration feature names remain proposals until implemented.
+A dependency-free Rust crate implements the whole-input irreversible pipeline,
+with tests and CI configuration. Consult README for implemented behavior and
+qualification limits; unimplemented integration features remain proposals.
 Inspect the current tree before choosing commands or claiming support.
 
 ## Ownership boundaries

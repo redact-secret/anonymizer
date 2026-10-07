@@ -1,17 +1,3 @@
-use crate::arbitration::Accepted;
-
-pub(crate) struct Plan<'a> {
-    pub(crate) input: &'a str,
-    pub(crate) capacity: usize,
-}
-
-pub(crate) fn plan(accepted: Accepted<'_>) -> Plan<'_> {
-    Plan {
-        input: accepted.input,
-        capacity: accepted.input.len(),
-    }
-}
-
 /// Bounded replacement mode; reversible tokens are introduced separately.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ReplacementMode {
@@ -89,7 +75,7 @@ impl TransformationManifest {
 /// Debug only formats safe metadata. No public input accessor or rebind exists.
 pub struct ReplacementPlan<'a> {
     pub(crate) input: &'a str,
-    manifest: TransformationManifest,
+    pub(crate) manifest: TransformationManifest,
 }
 impl ReplacementPlan<'_> {
     /// Safe metadata without plaintext, token identities, or authorization state.

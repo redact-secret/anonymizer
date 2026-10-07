@@ -1,6 +1,6 @@
 use crate::{
-    normalization::Normalized, normalize_findings, AnonymizeError, FindingAction, FindingKind,
-    FindingSource, Limits, SourceFinding, Span,
+    normalize_findings, AnonymizeError, FindingAction, FindingKind, FindingSource, Limits,
+    SourceFinding, Span,
 };
 
 /// Safe explanation of an accepted replacement span.
@@ -107,14 +107,4 @@ fn label_key(finding: SourceFinding) -> (u8, u8, u16, SourceFinding) {
         1
     };
     (source, kind, registration, finding)
-}
-
-pub(crate) struct Accepted<'a> {
-    pub(crate) input: &'a str,
-}
-
-pub(crate) fn arbitrate(normalized: Normalized<'_>) -> Accepted<'_> {
-    Accepted {
-        input: normalized.input,
-    }
 }

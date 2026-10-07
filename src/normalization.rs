@@ -57,12 +57,3 @@ pub fn normalize_findings(
     normalized.dedup();
     Ok(normalized)
 }
-
-pub(crate) struct Normalized<'a> {
-    pub(crate) input: &'a str,
-}
-
-pub(crate) fn normalize(input: &str) -> Result<Normalized<'_>, AnonymizeError> {
-    normalize_findings(input, &[], Limits::default())?;
-    Ok(Normalized { input })
-}
