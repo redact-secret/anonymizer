@@ -72,7 +72,9 @@ The Rust crate currently exposes `anonymize(&str) -> Result<String, AnonymizeErr
 It preserves input exactly and rejects input above 16 MiB. It performs no
 detection or replacement and must not be treated as sanitized output. Private
 normalization, arbitration, planning, and construction modules establish the
-pipeline boundaries; finding-aware behavior follows in subsequent issues.
+pipeline boundaries. `normalize_findings(input, findings, limits)` now validates
+and canonicalizes compact caller-supplied metadata (see ARCHITECTURE.md); the
+identity `anonymize` scaffold does not yet consume it or apply replacements.
 
 The default dependency graph contains only this crate and the Rust standard
 library. There are no runtime or development dependencies, sibling imports,
@@ -82,7 +84,8 @@ equivalent. Integration flags will be added only with implemented capabilities.
 
 CI tests the current stable toolchain on Linux, macOS, and Windows with one build
 job and one matrix target at a time. Local scaffold checks ran on macOS with
-Rust 1.99.0; other platforms are qualified by their CI results, not local claims.
+Rust 1.99.0; Linux/Windows remain unqualified: GitHub Actions execution is currently blocked
+by account billing/spending limits. CI configuration is not a passing result.
 MSRV is pending qualification: no `rust-version` or older-toolchain support is
 claimed. Before release, choose and test an MSRV against every enabled feature.
 `Cargo.lock` is committed for reproducible repository checks; this is not a

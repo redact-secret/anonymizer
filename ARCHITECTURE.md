@@ -110,24 +110,67 @@ The anonymizer should not rescan text to rediscover findings already supplied by
 
 ## 5. Finding model
 
-The internal finding representation should remain compact.
+The implemented public `SourceFinding` contains only `Span`, `FindingKind`,
+`FindingSource`, `Confidence`, and `FindingAction`. No matched substring or
+open-ended metadata is retained. `Span` is `[start, end)` in UTF-8 bytes against
+the exact original input, with no Unicode normalization or offset translation.
+`normalize_findings` rejects zero-length, reversed, out-of-range, and non-character
+boundary spans before allocation, sorting, or slicing. Any invalid submission
+fails the whole call with a fixed source-free error.
 
-Preferred characteristics:
+Sources are `Core`, `Fastner`, or host-registered `Caller(u16)`. IDs are stable
+configuration ordinals, never account identifiers or value-derived labels. They
+are metadata, not authorization or proof of recognizer identity; the trusted
+host must assign sources. Kinds are a closed category enum; no arbitrary type
+name can enter diagnostics. `Other` is only for explicitly accepted unmapped
+sensitive categories. Detector-specific placeholder fidelity remains a future
+bounded-kind extension, not an arbitrary-string escape hatch.
 
-- UTF-8 byte offsets for Rust-native paths.
-- No matched substring ownership.
-- Stable source identity.
-- Bounded type identifiers.
-- Confidence represented compactly.
-- Optional metadata only when it has a demonstrated runtime use.
+Confidence preserves interpretation: `Unknown`, `Ordinal(Low|Medium|High)`, or
+`Calibrated(u16)` mapping `0..=65535` to `0..=1`. Ordinal evidence is not converted
+into invented probabilities. Values across confidence variants or model versions
+are not inherently comparable. `FindingAction` preserves `Redact`, `Block`,
+`Warn`, and `Allow`; adapters must never reinterpret block as successful output
+or report-only actions as mandatory replacement.
 
-Avoid open-ended hot-path structures such as:
+Normalization sorts lexicographically by declaration order: span start/end,
+kind, source, confidence, action. It removes only exact full-metadata duplicates;
+same-span findings with different source, confidence, action, or kind remain.
+Overlapping and adjacent findings remain for arbitration. Sorting order is a
+canonical representation, not an accepted overlap precedence. Complexity is
+O(n log n) time and O(n) metadata space, without substring allocations.
+`Limits` defaults to 16 MiB input and 100,000 supplied findings, checked before
+allocation and deduplication. Hosts can lower or explicitly raise these bounds;
+raising them accepts greater resource exposure. Replacement/capture/output
+bounds belong to later stages.
 
-```rust
-HashMap<String, serde_json::Value>
-```
+### Public sibling mapping evidence
 
-unless isolated from the core path.
+Observed 2026-10-07 by source inspection; no runtime adapter or version support
+qualification is claimed. No sibling dependency is added.
+
+- [`redact-secret` types at efe7149](https://github.com/redact-secret/redact-secret/blob/efe714968c0e8865df936de9ffa3e095aa771b5b/crates/secret-scan-core/src/types.rs),
+  package `redact-secret` version `0.1.0-beta.14`: map public `Finding::range()`
+  getters `start()`/`end()` to `Span`, `confidence()` variants to ordinal evidence,
+  and `action()` exactly to `FindingAction`, with source `Core`. Hosts map
+  `type_name()` through an explicit reviewed category table; do not assume every
+  core finding is a credential. Unknown names require an explicit `Other` mapping
+  or a safe adapter error, never dropping a finding silently. Core scanning has
+  already resolved its own detector competition; consume its public policy-applied
+  results without importing candidates or private arbitration. Bounded category
+  mapping loses detector-specific names and obfuscation metadata; it does not
+  claim feature parity with standalone core redaction.
+- [`fastner` types at f4a6a56](https://github.com/redact-secret/fastner/blob/f4a6a567e6255490ee35229f8fed95e09e644c94/crates/fastner/src/types.rs),
+  workspace version `0.0.0`, unpublished: map `Entity::range().start()/end()`,
+  `Entity::kind()` (`Person` at this revision), and `confidence().raw()` directly,
+  with source `Fastner`, kind `Person`, and explicit host-selected `Redact` intent.
+  `EntityKind` is non-exhaustive: future variants require reviewed mapping or safe
+  failure. Do not call `ByteRange::slice` on unvalidated caller input. A published
+  runtime contract and integration tests are required before production support.
+
+Confidence: high for these pinned public getters; package publication and future
+API compatibility remain unqualified. Neither source requires recognizers to
+reference anonymizer or exposes mapping/restore authority.
 
 ## 6. Overlap arbitration
 
