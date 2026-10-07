@@ -199,3 +199,13 @@ fn all_local_preflight_failures_and_empty_calls_avoid_sink() {
     assert_eq!(output.text(), TOKEN_A);
     assert!(sink.calls.is_empty());
 }
+
+#[test]
+fn unicode_format_split_marker_is_explicitly_outside_minimal_profile() {
+    let input = "synthetic-name and abc! r\u{200b}sv_marker";
+    let mut sink = Sink::default();
+    let output = anonymize_reversible(input, &fs(), &mut sink, CaptureLimits::default()).unwrap();
+    assert!(output.text().ends_with("r\u{200b}sv_marker"));
+    // This is a documented interoperability gap, not spoof-marker protection.
+    assert_eq!(sink.calls, ["begin", "stage", "commit"]);
+}

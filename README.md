@@ -118,8 +118,9 @@ the crate is unpublished. Release builds enable LTO and one codegen unit.
 
 Run the checks in CONVENTIONS.md plus `cargo test --locked --no-default-features`
 and `cargo build --locked --release --no-default-features`. Small devices should
-set `CARGO_BUILD_JOBS=1`. Performance and sibling integration qualification remain
-pending; implemented irreversible behavior does not imply release readiness.
+set `CARGO_BUILD_JOBS=1`. Independent span properties and a bounded byte-entry mutation/replay fuzz
+smoke are documented in [fuzz/README.md](fuzz/README.md). Performance and sibling
+integration qualification remain pending; implemented irreversible behavior does not imply release readiness.
 
 ## Performance contract
 
