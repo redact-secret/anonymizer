@@ -7,8 +7,14 @@
 
 mod arbitration;
 mod construction;
+mod finding;
 mod normalization;
 mod planning;
+
+pub use finding::{
+    Confidence, Evidence, FindingAction, FindingKind, FindingSource, SourceFinding, Span,
+};
+pub use normalization::{normalize_findings, Limits};
 
 /// Fixed, source-free failures safe to format in diagnostics.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -17,6 +23,12 @@ pub enum AnonymizeError {
     InputLimit,
     /// The output allocation could not be reserved.
     Allocation,
+    /// Supplied finding count exceeds the configured bound.
+    FindingLimit,
+    /// Span is empty, reversed, or outside input.
+    InvalidSpan,
+    /// Span endpoint is not a UTF-8 character boundary.
+    InvalidBoundary,
 }
 
 impl std::fmt::Display for AnonymizeError {
@@ -24,6 +36,9 @@ impl std::fmt::Display for AnonymizeError {
         formatter.write_str(match self {
             Self::InputLimit => "input limit exceeded",
             Self::Allocation => "output allocation failed",
+            Self::FindingLimit => "finding limit exceeded",
+            Self::InvalidSpan => "invalid span",
+            Self::InvalidBoundary => "invalid UTF-8 boundary",
         })
     }
 }
