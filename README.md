@@ -112,15 +112,16 @@ implemented capabilities, not empty promises.
 CI is configured for stable Linux/macOS/Windows, one build job and one matrix
 entry at a time. Local checks passed on macOS with Rust 1.99.0. Linux/Windows
 remain unqualified: GitHub Actions execution is currently blocked by account
-billing/spending limits. MSRV and WASM are pending qualification; no older
-toolchain support is claimed. Cargo.lock is committed for repository checks;
+billing/spending limits. The conservative supported minimum is Rust 1.98.1, locally tested on macOS;
+current stable 1.99.0 also passes. Older toolchains and WASM are unqualified. Cargo.lock is committed for repository checks;
 the crate is unpublished. Release builds enable LTO and one codegen unit.
 
 Run the checks in CONVENTIONS.md plus `cargo test --locked --no-default-features`
 and `cargo build --locked --release --no-default-features`. Small devices should
 set `CARGO_BUILD_JOBS=1`. Independent span properties and a bounded byte-entry mutation/replay fuzz
-smoke are documented in [fuzz/README.md](fuzz/README.md). Performance and sibling
-integration qualification remain pending; implemented irreversible behavior does not imply release readiness.
+smoke are documented in [fuzz/README.md](fuzz/README.md). Local performance/allocation/probe-size baselines and gates are in
+[qualification/README.md](qualification/README.md). Production sibling integration
+and public-release gates remain blocked; implementation does not imply readiness.
 
 ## Performance contract
 

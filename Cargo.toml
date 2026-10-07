@@ -2,6 +2,7 @@
 name = "anonymizer"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.98.1"
 publish = false
 description = "Deterministic forward transformation for the Redact Secret ecosystem"
 
@@ -12,3 +13,7 @@ reversible = []
 [profile.release]
 lto = true
 codegen-units = 1
+
+[[bench]]
+name = "qualification"
+harness = false

@@ -170,3 +170,16 @@ for exact reproduction and limits. This is not a complete detection/safety proof
 or a coverage-guided sanitizer campaign. Malformed UTF-8 is rejected at the test
 adapter boundary; no public FFI is implemented. Actual default count/input bounds
 and configurable growth limits are tested with sequential test execution.
+
+## Benchmark-only allocator instrumentation
+
+Runtime library unsafe remains forbidden. The narrow benchmark support module
+`benches/support/counting_allocator.rs` uses an unsafe GlobalAlloc proxy solely
+to measure the engine's real allocation contract without adding runtime tracing
+or dependencies. It forwards valid System allocator arguments unchanged, retains
+no pointers, does not dereference memory, and uses allocation-free atomics with
+single-threaded tracking. Dedicated alloc/zeroed/realloc/dealloc smoke checks run
+before every qualification harness. Observed constructor allocation and capacity
+gates justify this measurement surface; it is not an unsafe runtime optimization.
+Timing includes proxy overhead and requested bytes are traffic, not peak heap.
+See qualification/README.md for bounded evidence and remaining release blockers.
