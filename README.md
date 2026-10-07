@@ -66,6 +66,33 @@ input
 - Require a network service boundary.
 - Require JSON, Serde, or IPC in native Rust usage.
 
+## Implemented scaffold
+
+The Rust crate currently exposes `anonymize(&str) -> Result<String, AnonymizeError>`.
+It preserves input exactly and rejects input above 16 MiB. It performs no
+detection or replacement and must not be treated as sanitized output. Private
+normalization, arbitration, planning, and construction modules establish the
+pipeline boundaries; finding-aware behavior follows in subsequent issues.
+
+The default dependency graph contains only this crate and the Rust standard
+library. There are no runtime or development dependencies, sibling imports,
+build scripts, serialization, network services, or optional integration features
+yet. `default = []`; `--no-default-features` and `--all-features` are currently
+equivalent. Integration flags will be added only with implemented capabilities.
+
+CI tests the current stable toolchain on Linux, macOS, and Windows with one build
+job and one matrix target at a time. Local scaffold checks ran on macOS with
+Rust 1.99.0; other platforms are qualified by their CI results, not local claims.
+MSRV is pending qualification: no `rust-version` or older-toolchain support is
+claimed. Before release, choose and test an MSRV against every enabled feature.
+`Cargo.lock` is committed for reproducible repository checks; this is not a
+published crate. Release builds enable LTO with one codegen unit.
+
+Run the checks in CONVENTIONS.md plus `cargo test --locked --no-default-features`
+and `cargo build --locked --release --no-default-features`. On small devices set
+`CARGO_BUILD_JOBS=1`. Performance, WASM, and sibling-version qualification remain
+pending; the scaffold does not imply v0.1 release readiness.
+
 ## Conceptual API
 
 The exact public API is intentionally not frozen yet. The preferred shape is bulk-oriented and allocation-conscious.

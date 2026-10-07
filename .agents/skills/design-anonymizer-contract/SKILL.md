@@ -1,6 +1,6 @@
 ---
 name: design-anonymizer-contract
-description: Design or review anonymizer finding, overlap arbitration, replacement-plan, and safe manifest contracts; use for issues #3–#5 or API boundary decisions.
+description: "Design or review anonymizer finding, overlap arbitration, replacement-plan, and safe manifest contracts; use for issues #3\u2013#5 or API boundary decisions."
 ---
 
 # Design anonymizer contract
