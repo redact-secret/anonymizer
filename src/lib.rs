@@ -1,8 +1,8 @@
-//! Forward transformation scaffolding for caller-supplied recognizer findings.
+//! Deterministic whole-input forward transformation of caller-supplied findings.
 //!
-//! This initial API only preserves input. Detection, authorization, mapping
+//! Detection, authorization, mapping
 //! persistence, cryptography, and restoration are outside this crate's ownership.
-//! Finding submission and transformation contracts are introduced separately.
+//! Output preserves undetected source bytes and is not universally safe.
 #![forbid(unsafe_code)]
 
 mod arbitration;
@@ -12,6 +12,7 @@ mod normalization;
 mod planning;
 
 pub use arbitration::{arbitrate_findings, AcceptedSpan, ArbitrationReason};
+pub use construction::{construct, AnonymizedOutput};
 pub use finding::{
     Confidence, Evidence, FindingAction, FindingKind, FindingSource, SourceFinding, Span,
 };
@@ -68,14 +69,14 @@ impl std::fmt::Display for AnonymizeError {
 
 impl std::error::Error for AnonymizeError {}
 
-/// Preserve input through the initial whole-input pipeline.
+/// Irreversibly replace supplied findings using default bounded configuration.
 ///
-/// This scaffold performs no detection or replacement and provides no claim of
-/// sanitized output. Input is borrowed; only the final output is allocated.
-/// The API is provisional until the finding and replacement contracts land.
-pub fn anonymize(input: &str) -> Result<String, AnonymizeError> {
-    let normalized = normalization::normalize(input)?;
-    let accepted = arbitration::arbitrate(normalized);
-    let plan = planning::plan(accepted);
-    construction::construct(plan)
+/// Performs no detection. Recognition and source identity come from trusted host
+/// wiring; undetected values remain. Mapping retention, authorization, and restore
+/// are outside this crate. Use `plan_irreversible` then `construct` for custom limits.
+pub fn anonymize(
+    input: &str,
+    findings: &[SourceFinding],
+) -> Result<AnonymizedOutput, AnonymizeError> {
+    construct(plan_irreversible(input, findings, PlanLimits::default())?)
 }

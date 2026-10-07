@@ -298,6 +298,26 @@ Requirements:
 - no overlapping writes,
 - one ordered output pass.
 
+### Implemented constructor
+
+`construct(ReplacementPlan)` consumes the immutable bound plan; there is no
+separate caller-supplied input that could accidentally substitute a different
+same-length document. It fallibly reserves the exact planned output length once
+and appends each untouched slice, fixed placeholder, and final suffix in order.
+Numbers are formatted using a bounded stack digit array, without a per-finding
+heap string, regex, recognizer rescan, or formatting callback. Construction is
+O(input bytes + output bytes + replacement count) after planning. Empty output
+needs no allocation. The standard allocator may round requested capacity up;
+this contract means one reserve and no growth, not exact allocator size.
+
+`AnonymizedOutput` privately owns output plus the moved manifest. Text access is
+explicit via `text()`/`into_parts()`; custom Debug only exposes manifest metadata,
+including when output retains undetected sensitive values. This is not memory
+zeroization or a guarantee about caller logging. Planning/allocation errors return
+no transformed partial output. Generated synthetic corpus tests compare every
+untouched byte slice and planned capacity across 128 deterministic Unicode cases;
+stronger fuzz/property qualification and performance evidence follow separately.
+
 ## 8. Reversible mode
 
 Reversible mode delegates token issuance and retention to a vault-facing capability.

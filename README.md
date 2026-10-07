@@ -66,72 +66,59 @@ input
 - Require a network service boundary.
 - Require JSON, Serde, or IPC in native Rust usage.
 
-## Implemented scaffold
+## Implemented whole-input API
 
-The Rust crate currently exposes `anonymize(&str) -> Result<String, AnonymizeError>`.
-It preserves input exactly and rejects input above 16 MiB. It performs no
-detection or replacement and must not be treated as sanitized output. Private
-normalization, arbitration, planning, and construction modules establish the
-pipeline boundaries. `normalize_findings(input, findings, limits)` now validates
-and canonicalizes compact caller-supplied metadata (see ARCHITECTURE.md); the
-identity `anonymize` scaffold does not yet consume it or apply replacements.
-`arbitrate_findings` returns immutable ordered overlap unions and safe dominant
-metadata, retaining all redaction coverage and rejecting upstream Block actions.
-Its explicit policy and decision table are documented in ARCHITECTURE.md.
-`plan_irreversible` adds an immutable input-bound plan, safe manifest, fixed
-placeholder identities, collision rejection, and checked output capacity; final
-replacement construction follows separately.
-
-The default dependency graph contains only this crate and the Rust standard
-library. There are no runtime or development dependencies, sibling imports,
-build scripts, serialization, network services, or optional integration features
-yet. `default = []`; `--no-default-features` and `--all-features` are currently
-equivalent. Integration flags will be added only with implemented capabilities.
-
-CI tests the current stable toolchain on Linux, macOS, and Windows with one build
-job and one matrix target at a time. Local scaffold checks ran on macOS with
-Rust 1.99.0; Linux/Windows remain unqualified: GitHub Actions execution is currently blocked
-by account billing/spending limits. CI configuration is not a passing result.
-MSRV is pending qualification: no `rust-version` or older-toolchain support is
-claimed. Before release, choose and test an MSRV against every enabled feature.
-`Cargo.lock` is committed for reproducible repository checks; this is not a
-published crate. Release builds enable LTO with one codegen unit.
-
-Run the checks in CONVENTIONS.md plus `cargo test --locked --no-default-features`
-and `cargo build --locked --release --no-default-features`. On small devices set
-`CARGO_BUILD_JOBS=1`. Performance, WASM, and sibling-version qualification remain
-pending; the scaffold does not imply v0.1 release readiness.
-
-## Conceptual API
-
-The exact public API is intentionally not frozen yet. The preferred shape is bulk-oriented and allocation-conscious.
+The dependency-free Rust crate validates caller findings, unions overlapping
+redactions, builds an immutable input-bound plan, and constructs irreversible
+output with deterministic placeholders. It performs no detection itself.
 
 ```rust
-pub struct Span {
-    pub start: usize,
-    pub end: usize,
-}
+use anonymizer::{anonymize, Confidence, FindingAction, FindingKind,
+    FindingSource, SourceFinding, Span};
 
-pub struct SourceFinding<'a> {
-    pub span: Span,
-    pub kind: &'a str,
-    pub confidence: u16,
-    pub source: FindingSource,
-}
-
-pub enum AnonymizationMode<'a> {
-    Irreversible,
-    Reversible(&'a dyn TokenSink),
-}
-
-pub fn anonymize<'a>(
-    input: &'a str,
-    findings: &[SourceFinding<'a>],
-    mode: AnonymizationMode<'_>,
-) -> Result<AnonymizedOutput, AnonymizeError>;
+let finding = SourceFinding {
+    span: Span { start: 0, end: 14 },
+    kind: FindingKind::Person,
+    source: FindingSource::Caller(1),
+    confidence: Confidence::Unknown,
+    action: FindingAction::Redact,
+};
+let output = anonymize("synthetic-name!", &[finding]).unwrap();
+assert_eq!(output.text(), "<PERSON_1>!");
 ```
 
-The concrete API may differ after benchmarking and integration work.
+`anonymize(input, findings)` uses default limits. For custom bounds or planning
+inspection, call `plan_irreversible(input, findings, limits)` then `construct(plan)`.
+The constructor takes its original input only from the privately bound plan,
+reserves final capacity once, and writes untouched slices and fixed labels in
+order. `normalize_findings` and `arbitrate_findings` are also available for callers
+that need validated metadata separately; do not call them redundantly before the
+planner. `output.into_parts()` moves text and safe manifest without cloning.
+Debug on output and plan excludes text. Undetected bytes remain unchanged;
+placeholder labels neither prove complete detection nor confer authority.
+
+Contracts, decision tables, limits, and reserved `<KIND_` collision rejection are
+in ARCHITECTURE.md. Reversible capture and sibling adapters are not implemented
+by this irreversible API. Public APIs remain developmental until release policy
+and integration qualification are established.
+
+The default dependency graph contains only this crate and Rust's standard
+library. There are no runtime/development dependencies, sibling imports, build
+scripts, serialization, or services. `default = []`; `--no-default-features` and
+`--all-features` are currently equivalent. Future integration flags require
+implemented capabilities, not empty promises.
+
+CI is configured for stable Linux/macOS/Windows, one build job and one matrix
+entry at a time. Local checks passed on macOS with Rust 1.99.0. Linux/Windows
+remain unqualified: GitHub Actions execution is currently blocked by account
+billing/spending limits. MSRV and WASM are pending qualification; no older
+toolchain support is claimed. Cargo.lock is committed for repository checks;
+the crate is unpublished. Release builds enable LTO and one codegen unit.
+
+Run the checks in CONVENTIONS.md plus `cargo test --locked --no-default-features`
+and `cargo build --locked --release --no-default-features`. Small devices should
+set `CARGO_BUILD_JOBS=1`. Performance and sibling integration qualification remain
+pending; implemented irreversible behavior does not imply release readiness.
 
 ## Performance contract
 
