@@ -16,6 +16,10 @@ pub use finding::{
     Confidence, Evidence, FindingAction, FindingKind, FindingSource, SourceFinding, Span,
 };
 pub use normalization::{normalize_findings, Limits};
+pub use planning::{
+    plan_irreversible, PlanLimits, PlannedReplacement, ReplacementIdentity, ReplacementMode,
+    ReplacementPlan, TransformationManifest,
+};
 
 /// Fixed, source-free failures safe to format in diagnostics.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -32,6 +36,16 @@ pub enum AnonymizeError {
     InvalidBoundary,
     /// Upstream policy blocks transformation of the whole input.
     Blocked,
+    /// Accepted replacement count exceeds configuration.
+    ReplacementLimit,
+    /// Generated placeholder exceeds configured length.
+    PlaceholderLimit,
+    /// Input already contains a reserved placeholder prefix.
+    PlaceholderCollision,
+    /// Output length or positive growth exceeds configuration.
+    OutputLimit,
+    /// Checked capacity calculation overflowed.
+    CapacityOverflow,
 }
 
 impl std::fmt::Display for AnonymizeError {
@@ -43,6 +57,11 @@ impl std::fmt::Display for AnonymizeError {
             Self::InvalidSpan => "invalid span",
             Self::InvalidBoundary => "invalid UTF-8 boundary",
             Self::Blocked => "transformation blocked",
+            Self::ReplacementLimit => "replacement limit exceeded",
+            Self::PlaceholderLimit => "placeholder limit exceeded",
+            Self::PlaceholderCollision => "placeholder literal collision",
+            Self::OutputLimit => "output limit exceeded",
+            Self::CapacityOverflow => "capacity overflow",
         })
     }
 }
