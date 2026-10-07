@@ -159,3 +159,14 @@ without releasing partial output. Panics, cancellation, process loss, persistenc
 zeroization, and authority remain outside this engine. The minimal contiguous token
 marker preflight does not match vault's Unicode-Cf spoof detection; production
 adapters must strengthen this before claiming vault output-binding parity.
+
+## Executed span-safety evidence
+
+The repository now runs independent bitmap-oracle properties (512 generated
+Unicode finding sets), adversarial boundaries, fixed-error/privacy checks, and
+a bounded raw-byte mutation/replay fuzz target with five synthetic seeds. The
+20,000-mutation local smoke passed on 2026-10-07; see [fuzz qualification](fuzz/README.md)
+for exact reproduction and limits. This is not a complete detection/safety proof
+or a coverage-guided sanitizer campaign. Malformed UTF-8 is rejected at the test
+adapter boundary; no public FFI is implemented. Actual default count/input bounds
+and configurable growth limits are tested with sequential test execution.
