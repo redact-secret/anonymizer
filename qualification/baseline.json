@@ -1,0 +1,81 @@
+{
+  "base_git_revision": "3e92a375334bbd8065cb59217f1c42c0c4c43e5e",
+  "build": "release; LTO=true; codegen-units=1; no strip; allocator instrumentation only in bench",
+  "feature_delta_bytes": 18520,
+  "machine": {
+    "architecture": "x86_64",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "cpu": "Intel(R) Core(TM) i5-5257U CPU @ 2.70GHz",
+    "memory_bytes": 8589934592,
+    "os": "Darwin",
+    "os_release": "21.6.0",
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)"
+  },
+  "ns_per_op_medians": {
+    "dense-overlap/irreversible/constructor": 4918,
+    "dense-overlap/irreversible/end-to-end": 2133148,
+    "dense-overlap/irreversible/planner": 2378485,
+    "dense-overlap/reversible-dummy/end-to-end": 2047117,
+    "empty/irreversible/constructor": 68,
+    "empty/irreversible/end-to-end": 49,
+    "empty/irreversible/planner": 31,
+    "empty/reversible-dummy/end-to-end": 51,
+    "expansion/irreversible/constructor": 2792,
+    "expansion/irreversible/end-to-end": 10016,
+    "expansion/irreversible/planner": 5211,
+    "expansion/reversible-dummy/end-to-end": 99712,
+    "high-count/irreversible/constructor": 5907077,
+    "high-count/irreversible/end-to-end": 76732915,
+    "high-count/irreversible/planner": 16002422,
+    "high-count/reversible-dummy/end-to-end": 280579247,
+    "large-input/irreversible/constructor": 332000,
+    "large-input/irreversible/end-to-end": 1479927,
+    "large-input/irreversible/planner": 956104,
+    "large-input/reversible-dummy/end-to-end": 10750154,
+    "shrinkage/irreversible/constructor": 4044,
+    "shrinkage/irreversible/end-to-end": 75058,
+    "shrinkage/irreversible/planner": 63842,
+    "shrinkage/reversible-dummy/end-to-end": 199830,
+    "small-log-core/irreversible/constructor": 441,
+    "small-log-core/irreversible/end-to-end": 1565,
+    "small-log-core/irreversible/planner": 1630,
+    "small-log-core/reversible-dummy/end-to-end": 5600,
+    "small-log/irreversible/constructor": 428,
+    "small-log/irreversible/end-to-end": 1982,
+    "small-log/irreversible/planner": 1003,
+    "small-log/reversible-dummy/end-to-end": 6132
+  },
+  "observation_date": "2026-10-07",
+  "peak_rss_bytes": [
+    47259648,
+    46723072,
+    47566848
+  ],
+  "probe_binary_bytes": {
+    "default": 368352,
+    "reversible": 386872
+  },
+  "repetitions": 3,
+  "source_digest_sha256": "99edc85ef45fd0416750fbdb8fc71b5d799f40e027feeb8603796c78c2fffb08",
+  "source_files": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "scripts/qualify.py",
+    "benches/qualification.rs",
+    "benches/support/counting_allocator.rs",
+    "examples/size_probe.rs",
+    "src/arbitration.rs",
+    "src/construction.rs",
+    "src/finding.rs",
+    "src/lib.rs",
+    "src/normalization.rs",
+    "src/planning.rs",
+    "src/reversible.rs"
+  ],
+  "thresholds": {
+    "binary_growth_fraction": 0.1,
+    "binary_noise_floor_bytes": 16384,
+    "same_host_time_multiplier": 3,
+    "time_noise_floor_ns": 1000
+  }
+}

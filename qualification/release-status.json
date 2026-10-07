@@ -1,0 +1,12 @@
+{
+  "scope": "Local v0.1 foundation evidence; not production/public-release approval",
+  "gates": [
+    {"name": "local-pipeline-tests", "status": "passed", "evidence": "Default and reversible tests, independent properties, bounded fuzz replay"},
+    {"name": "supported-minimum-toolchain", "status": "passed", "evidence": "Rust 1.98.1 local macOS default/reversible formatting, Clippy, and tests"},
+    {"name": "performance-reproduction", "status": "passed", "evidence": "scripts/qualify.py; three repeated samples and allocation/size gates"},
+    {"name": "platform-ci", "status": "blocked", "evidence": "GitHub Actions account billing/spending prevents execution; Linux and Windows unqualified"},
+    {"name": "production-vault-interoperability", "status": "blocked", "evidence": "No public native bulk transaction adapter; persistent rollback and Unicode-Cf marker parity unqualified"},
+    {"name": "extended-fuzz-sanitizer-campaign", "status": "blocked", "evidence": "Only bounded mutation/replay executed, no coverage-guided campaign or sanitizer results"},
+    {"name": "public-distribution-governance", "status": "blocked", "evidence": "No LICENSE, release API stability policy, contribution instructions, or established private vulnerability reporting endpoint"}
+  ]
+}

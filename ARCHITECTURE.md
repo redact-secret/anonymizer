@@ -287,7 +287,7 @@ Examples:
 
 ```text
 Sarah Kim -> <PERSON_1>
-ghp_...   -> <GITHUB_TOKEN_1>
+synthetic-credential -> <CREDENTIAL_1>
 ```
 
 Requirements:
@@ -348,10 +348,12 @@ distributed recovery remain host responsibilities. Sink methods must not panic.
 
 The selected profile matches observed issued vault tokens: `<rsv_` plus 26
 lowercase RFC4648 base32 characters `[a-z2-7]` plus `>`, exactly 32 bytes. Anonymizer
-validates count/order correspondence, grammar, length, and uniqueness using a
+validates count, grammar, length, and uniqueness using a
 fallibly allocated sorted borrowed-reference vector. It also rejects tokens equal
 to any entire accepted original value without copying those values or retaining
-a mapping store. The sink must honor bounds before allocating its returned vector;
+a mapping store. Correspondence between each token and its capture order is a
+trusted sink obligation; the engine cannot inspect the external mapping. The sink
+must honor bounds before allocating its returned vector;
 post-return validation cannot undo excessive trusted-sink allocation. Unpredictable
 identity generation and freedom from arbitrary substring/semantic plaintext
 encoding are trusted sink obligations, not locally provable properties.
@@ -415,18 +417,19 @@ The default crate should not automatically include:
 - crypto SDKs,
 - network stacks.
 
-Possible feature shape:
+Implemented feature shape is intentionally small:
 
 ```toml
 [features]
 default = []
-core = ["dep:redact-secret"]
-fastner = ["dep:fastner"]
-reversible = ["dep:redact-secret-vault-contract"]
-full = ["core", "fastner", "reversible"]
+reversible = []
 ```
 
-Exact feature names are not yet fixed.
+No core/Fastner adapter feature or full bundle is shipped. Both default and
+reversible builds have zero runtime dependencies. Comparable probe executables,
+allocation and time baselines, supported minimum toolchain, and regression gates
+are recorded in [qualification/README.md](qualification/README.md). Integration
+features need a qualified public sibling contract before being added.
 
 ## 11. Error boundary
 
