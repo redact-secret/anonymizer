@@ -11,6 +11,7 @@ mod finding;
 mod normalization;
 mod planning;
 
+pub use arbitration::{arbitrate_findings, AcceptedSpan, ArbitrationReason};
 pub use finding::{
     Confidence, Evidence, FindingAction, FindingKind, FindingSource, SourceFinding, Span,
 };
@@ -29,6 +30,8 @@ pub enum AnonymizeError {
     InvalidSpan,
     /// Span endpoint is not a UTF-8 character boundary.
     InvalidBoundary,
+    /// Upstream policy blocks transformation of the whole input.
+    Blocked,
 }
 
 impl std::fmt::Display for AnonymizeError {
@@ -39,6 +42,7 @@ impl std::fmt::Display for AnonymizeError {
             Self::FindingLimit => "finding limit exceeded",
             Self::InvalidSpan => "invalid span",
             Self::InvalidBoundary => "invalid UTF-8 boundary",
+            Self::Blocked => "transformation blocked",
         })
     }
 }
