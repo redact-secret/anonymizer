@@ -237,6 +237,48 @@ allocation. Limits bound submitted counts before sorting. Tests cover transitive
 chains, Unicode boundaries, duplicates, exact agreement, containment, partial
 intersection, adjacency, source/kind ties, report-only actions, and global block.
 
+### Immutable planning and safe manifest
+
+`plan_irreversible(input, findings, PlanLimits)` invokes the single normalization /
+arbitration pass and returns a `ReplacementPlan` borrowing the exact original
+`&str`. Private fields prevent mutation or rebinding; output construction must use
+this original input, never accept an unrelated same-length string. No original
+substring is owned by a plan. Custom Debug hides borrowed input and prints only
+safe manifest metadata. Holding a plan extends the lifetime of sensitive input;
+hosts remain responsible for source storage and memory lifecycle.
+
+`TransformationManifest` exposes only input/output byte counts and ordered
+`PlannedReplacement` rows: accepted range, dominant bounded metadata, contributor
+count/reason, mode, and a `ReplacementIdentity` of category plus ordinal. It owns
+no plaintext, source fragments, raw reversible tokens, mappings, authority state,
+or input fingerprint. Read-only accessors prevent mutation. Location/category/
+length metadata can still reveal context and needs destination review; safe here
+means structurally excludes values, not universally publishable.
+
+Irreversible identities are global one-based source-order numbers, not per-value
+identities: repeated values are numbered independently, and duplicate findings
+are deduplicated before numbering. Fixed grammar is `<KIND_N>` with categories
+`CREDENTIAL`, `PERSON`, `EMAIL`, `PHONE`, `NETWORK_ADDRESS`, `ADDRESS`, `OTHER`.
+The planner computes exact decimal digit widths without building strings.
+When a plan contains replacements, one bounded linear input scan rejects any
+reserved `<KIND_` prefix anywhere, even malformed placeholder-like literals or
+inside accepted spans. This conservative policy prevents generated-label
+ambiguity and replacing matched plaintext with an identical placeholder. Empty
+plans preserve placeholder-like source text because they generate no labels.
+Escaping and per-input namespace searching were rejected to preserve untouched
+bytes and avoid repeated scans. Reversible token collisions require their own
+vault-facing policy; this contract does not invent tokens.
+
+`PlanLimits` includes input/finding bounds plus defaults of 100,000 replacements,
+64 bytes per placeholder, 32 MiB absolute output, and 16 MiB positive growth.
+Hosts may change these explicitly. Capture count will be bounded with reversible
+support. Allocation is fallible; checked arithmetic sums removed and added bytes
+then calculates final capacity, rejecting overflow, output limits, or collisions
+before any final output exists. Shrinkage does not count as positive growth.
+All failure returns are fixed source-free errors; no partial plan/output escapes.
+Plan and manifest share one row vector rather than duplicating metadata. No final
+write or vault capture is performed by planning.
+
 ## 7. Irreversible mode
 
 Irreversible mode replaces accepted spans with placeholders.
