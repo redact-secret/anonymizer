@@ -10,6 +10,10 @@ mod construction;
 mod finding;
 mod normalization;
 mod planning;
+#[cfg(feature = "reversible")]
+mod reversible;
+#[cfg(feature = "reversible")]
+pub use reversible::{anonymize_reversible, Capture, CaptureLimits, TokenSink};
 
 pub use arbitration::{arbitrate_findings, AcceptedSpan, ArbitrationReason};
 pub use construction::{construct, AnonymizedOutput};
@@ -47,6 +51,18 @@ pub enum AnonymizeError {
     OutputLimit,
     /// Checked capacity calculation overflowed.
     CapacityOverflow,
+    /// Capture transaction failed; sink details are intentionally discarded.
+    #[cfg(feature = "reversible")]
+    CaptureFailed,
+    /// Capture cleanup failed; externally retained state may remain.
+    #[cfg(feature = "reversible")]
+    CleanupFailed,
+    /// Returned token violates the selected sink profile.
+    #[cfg(feature = "reversible")]
+    InvalidToken,
+    /// Capture count exceeds its configured bound.
+    #[cfg(feature = "reversible")]
+    CaptureLimit,
 }
 
 impl std::fmt::Display for AnonymizeError {
@@ -63,6 +79,14 @@ impl std::fmt::Display for AnonymizeError {
             Self::PlaceholderCollision => "placeholder literal collision",
             Self::OutputLimit => "output limit exceeded",
             Self::CapacityOverflow => "capacity overflow",
+            #[cfg(feature = "reversible")]
+            Self::CaptureFailed => "capture transaction failed",
+            #[cfg(feature = "reversible")]
+            Self::CleanupFailed => "capture cleanup failed",
+            #[cfg(feature = "reversible")]
+            Self::InvalidToken => "invalid capture token",
+            #[cfg(feature = "reversible")]
+            Self::CaptureLimit => "capture limit exceeded",
         })
     }
 }

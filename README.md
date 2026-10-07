@@ -98,14 +98,15 @@ Debug on output and plan excludes text. Undetected bytes remain unchanged;
 placeholder labels neither prove complete detection nor confer authority.
 
 Contracts, decision tables, limits, and reserved `<KIND_` collision rejection are
-in ARCHITECTURE.md. Reversible capture and sibling adapters are not implemented
-by this irreversible API. Public APIs remain developmental until release policy
+in ARCHITECTURE.md. Optional `reversible` enables `anonymize_reversible` with a trusted generic
+transaction `TokenSink` and dummy conformance coverage. No production vault or
+recognizer adapter is implemented; see the documented upstream contract gap. Public APIs remain developmental until release policy
 and integration qualification are established.
 
 The default dependency graph contains only this crate and Rust's standard
 library. There are no runtime/development dependencies, sibling imports, build
-scripts, serialization, or services. `default = []`; `--no-default-features` and
-`--all-features` are currently equivalent. Future integration flags require
+scripts, serialization, or services. `default = []`; optional `reversible` adds local Rust transaction orchestration
+without runtime dependencies. Future integration flags require
 implemented capabilities, not empty promises.
 
 CI is configured for stable Linux/macOS/Windows, one build job and one matrix

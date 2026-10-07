@@ -3,8 +3,8 @@ use crate::{AnonymizeError, ReplacementIdentity, ReplacementPlan, Transformation
 /// Transformed text with safe metadata. Debug never formats the text.
 /// Undetected source bytes are retained; this is not universally safe output.
 pub struct AnonymizedOutput {
-    text: String,
-    manifest: TransformationManifest,
+    pub(crate) text: String,
+    pub(crate) manifest: TransformationManifest,
 }
 impl AnonymizedOutput {
     /// Output for the caller's explicitly trusted destination.

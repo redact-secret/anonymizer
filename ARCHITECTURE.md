@@ -320,26 +320,73 @@ stronger fuzz/property qualification and performance evidence follow separately.
 
 ## 8. Reversible mode
 
-Reversible mode delegates token issuance and retention to a vault-facing capability.
+The optional dependency-free `reversible` feature exposes statically dispatched
+`TokenSink` and `anonymize_reversible`. This is a local candidate transaction
+contract qualified by dummy-sink conformance tests, not an implemented production
+vault adapter. The trusted host supplies capture authority context to its sink;
+source IDs and model-provided claims never establish authority.
 
-Conceptually:
+Preflight normalizes/arbitrates once, rejects Block/invalid spans, checks capture
+and replacement counts, calculates exact output length for the selected token
+profile, and reserves source-slice metadata, manifest rows, and final output
+before side effects. Zero captures return unchanged text without touching the
+sink. Defaults: 100,000 captures, 32-byte maximum token, shared 32 MiB output and
+16 MiB positive growth. Hosts explicitly accept exposure when raising limits.
 
-```text
-finding span
-   |
-   v
-capture eligible original value
-   |
-   v
-vault issues unpredictable token
-   |
-   v
-anonymizer places token into output
-```
+One transaction follows `begin → stage(all borrowed accepted slices) → validate
+all returned tokens → construct private output → commit → return`. Failed begin,
+stage, validation, scratch allocation, or commit calls abort. No partial output
+is returned. Sink errors are never formatted; only fixed `CaptureFailed`,
+`InvalidToken`, or `CleanupFailed` errors cross the boundary. Abort must work after
+a failed begin and failed commit; successful abort means all attempted mappings
+are removed, including compensating cleanup of external partial writes. Failed
+abort reports residual-state risk, and the host must reconcile retained mappings.
+Commit must publish all mappings atomically or keep them abortable. No local code
+can prove a remote sink honors these rules; persistent authority qualification
+requires its own fault tests. Panic, process loss, cancellation, zeroization, and
+distributed recovery remain host responsibilities. Sink methods must not panic.
 
-The anonymizer must not retain an independent copy of the vault mapping after the operation.
+The selected profile matches observed issued vault tokens: `<rsv_` plus 26
+lowercase RFC4648 base32 characters `[a-z2-7]` plus `>`, exactly 32 bytes. Anonymizer
+validates count/order correspondence, grammar, length, and uniqueness using a
+fallibly allocated sorted borrowed-reference vector. It also rejects tokens equal
+to any entire accepted original value without copying those values or retaining
+a mapping store. The sink must honor bounds before allocating its returned vector;
+post-return validation cannot undo excessive trusted-sink allocation. Unpredictable
+identity generation and freedom from arbitrary substring/semantic plaintext
+encoding are trusted sink obligations, not locally provable properties.
 
-A reversible token must not be treated as a plaintext identifier or as authorization.
+Before any capture, input containing contiguous case-insensitive `rsv_` is
+rejected when replacements exist, including source-equal tokens and malformed
+markers. This deliberately conservative profile prevents ordinary exact-token
+literal collisions. It does **not** implement vault's Unicode-Cf-separated spoof
+marker detection or output-binding parity. Such source markers may remain in
+untouched bytes; a production adapter must apply the vault's stronger marker
+rules or reject unsupported inputs. Empty capture calls generate no tokens and
+preserve source literals. Generated tokens are placed in one ordered pass and
+only exist transiently for construction; manifests contain mode `Reversible`
+and safe category/ordinal references, never raw tokens, mappings, or authority.
+Output Debug hides text and tokens. Tokens themselves remain potentially sensitive.
+
+### Pinned vault evidence and upstream gap
+
+Observed 2026-10-07, high confidence in source inspection:
+[`@redact-secret/vault` 0.1.0-beta.5 types](https://github.com/redact-secret/redact-secret-vault/blob/022972391314640e719233b3d9d1f3ad0acb802d/packages/vault/src/types.ts)
+expose TypeScript `capture(input, CaptureOptions)` with release grants and policy;
+[`vault.ts`](https://github.com/redact-secret/redact-secret-vault/blob/022972391314640e719233b3d9d1f3ad0acb802d/packages/vault/src/vault.ts)
+uses a core-backed whole-input capture plan, rather than a generic public native
+Rust bulk-slice transaction. The issued grammar and stronger marker detection are
+observed in [`token.ts`](https://github.com/redact-secret/redact-secret-vault/blob/022972391314640e719233b3d9d1f3ad0acb802d/packages/vault/src/token.ts).
+
+An upstream native public contract is needed for begin/bulk staging/atomic
+commit/idempotent abort (including partial external commit cleanup), with trusted
+host authority binding, bounds, token profile, and fault conformance. No upstream
+issue is posted and no private/internal capture-plan import, detector rescan,
+TS subprocess, network stack, mapping store, or token generator is introduced.
+Dummy tests qualify this local contract's success, phase failures, compensating
+abort, cleanup failure, invalid/duplicate/count-mismatched tokens, collision
+preflight, limits, global Block, and zero-capture behavior. Real vault interoperability,
+persistent failure recovery, and full marker parity remain unqualified.
 
 ## 9. Performance rules
 
